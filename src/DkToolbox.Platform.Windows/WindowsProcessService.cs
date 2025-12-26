@@ -12,7 +12,7 @@ public sealed class WindowsProcessService : IProcessService
     public IReadOnlyList<ProcessInfo> List(ProcessQuery query)
     {
         Process[] processes = Process.GetProcesses();
-        
+
         IEnumerable<ProcessInfo> processInfos = processes.Select(process =>
         {
             long workingSet = 0;
@@ -24,13 +24,13 @@ public sealed class WindowsProcessService : IProcessService
             {
                 // TODO: Log
             }
-                
+
             return new ProcessInfo(process.Id, process.ProcessName, workingSet);
         });
 
         return ProcessListHelper.ApplyQuery(processInfos, query);
     }
-    
+
     /// <inheritdoc />
     public KillResult Kill(int pid, KillOptions options)
     {
@@ -47,8 +47,10 @@ public sealed class WindowsProcessService : IProcessService
         }
         catch (System.ComponentModel.Win32Exception exception)
         {
-            // Access denied or insufficient privileges
-            return KillResult.Failed(pid, KillFailureKind.AccessDenied, exception.Message);
+            // Error code 5 = Access Denied
+            return KillResult.Failed(pid,
+                exception.NativeErrorCode == 5 ? KillFailureKind.AccessDenied : KillFailureKind.Unexpected,
+                exception.Message);
         }
         catch (Exception exception)
         {
