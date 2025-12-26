@@ -3,18 +3,13 @@ using DkToolbox.Cli.Commands;
 using DkToolbox.Core.Abstractions;
 using DkToolbox.Platform.Windows;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Spectre.Console.Cli;
 
-IHost host = Host.CreateDefaultBuilder(args)
-    .ConfigureServices((context, services) =>
-    {
-        services.AddSingleton<IProcessService, WindowsProcessService>();
-        services.AddSingleton<IPortService, WindowsPortService>();
-    })
-    .Build();
+IServiceCollection services = new ServiceCollection();
+services.AddSingleton<IProcessService, WindowsProcessService>();
+services.AddSingleton<IPortService, WindowsPortService>();
 
-TypeRegistrar registrar = new(host.Services);
+TypeRegistrar registrar = new(services);
 CommandApp app = new(registrar);
 
 app.Configure(config =>
