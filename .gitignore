@@ -141,6 +141,10 @@ __pycache__/
 # OpenCover UI analysis results
 OpenCover/
 
+# Test coverage reports
+coverage/
+TestResults/
+
 # Azure Stream Analytics local run output
 ASALocalRun/
 
