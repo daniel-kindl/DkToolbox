@@ -1,6 +1,6 @@
 using DkToolbox.Core.Models;
 
-namespace DkToolbox.Core;
+namespace DkToolbox.Core.Services;
 
 public static class ProcessListHelper
 {
