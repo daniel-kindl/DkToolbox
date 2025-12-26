@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Text.Json;
 using DkToolbox.Core.Abstractions;
 using DkToolbox.Core.Models;
 using Spectre.Console;
@@ -9,6 +10,11 @@ namespace DkToolbox.Cli.Commands;
 public sealed class ProcListCommand(IProcessService processes) : Command<ProcListCommand.Settings>
 {
     private const double BytesToMegabytes = 1024.0 * 1024.0;
+    private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
+    {
+        WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
 
     public sealed class Settings : CommandSettings
     {
@@ -19,7 +25,10 @@ public sealed class ProcListCommand(IProcessService processes) : Command<ProcLis
         public int? Top { get; init; }
 
         [CommandOption("--sort <name|mem>")]
-        public string Sort { get; } = "name";
+        public string Sort { get; init; } = "name";
+
+        [CommandOption("--json")]
+        public bool Json { get; init; }
     }
 
     public override int Execute(CommandContext context, Settings settings, CancellationToken cancellationToken)
@@ -30,15 +39,24 @@ public sealed class ProcListCommand(IProcessService processes) : Command<ProcLis
 
         IReadOnlyList<ProcessInfo> processList = processes.List(new ProcessQuery(settings.Name, settings.Top, sortOrder));
 
-        Table processTable = new Table().AddColumn("PID").AddColumn("Name").AddColumn("Memory (MB)");
-
-        foreach (ProcessInfo processInfo in processList)
+        if (settings.Json)
         {
-            string memoryInMegabytes = (processInfo.WorkingSetBytes / BytesToMegabytes).ToString("F1", CultureInfo.InvariantCulture);
-            processTable.AddRow(processInfo.Pid.ToString(CultureInfo.InvariantCulture), processInfo.Name, memoryInMegabytes);
+            string json = JsonSerializer.Serialize(processList, JsonOptions);
+            AnsiConsole.WriteLine(json);
+        }
+        else
+        {
+            Table processTable = new Table().AddColumn("PID").AddColumn("Name").AddColumn("Memory (MB)");
+
+            foreach (ProcessInfo processInfo in processList)
+            {
+                string memoryInMegabytes = (processInfo.WorkingSetBytes / BytesToMegabytes).ToString("F1", CultureInfo.InvariantCulture);
+                processTable.AddRow(processInfo.Pid.ToString(CultureInfo.InvariantCulture), processInfo.Name, memoryInMegabytes);
+            }
+
+            AnsiConsole.Write(processTable);
         }
 
-        AnsiConsole.Write(processTable);
         return ExitCodes.Success;
     }
 }
