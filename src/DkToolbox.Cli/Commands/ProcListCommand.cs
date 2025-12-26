@@ -10,7 +10,7 @@ namespace DkToolbox.Cli.Commands;
 public sealed class ProcListCommand(IProcessService processes) : Command<ProcListCommand.Settings>
 {
     private const double BytesToMegabytes = 1024.0 * 1024.0;
-    private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
+    private static readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions
     {
         WriteIndented = true,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
@@ -41,22 +41,40 @@ public sealed class ProcListCommand(IProcessService processes) : Command<ProcLis
 
         if (settings.Json)
         {
-            string json = JsonSerializer.Serialize(processList, JsonOptions);
-            AnsiConsole.WriteLine(json);
+            OutputJson(processList);
         }
         else
         {
-            Table processTable = new Table().AddColumn("PID").AddColumn("Name").AddColumn("Memory (MB)");
-
-            foreach (ProcessInfo processInfo in processList)
-            {
-                string memoryInMegabytes = (processInfo.WorkingSetBytes / BytesToMegabytes).ToString("F1", CultureInfo.InvariantCulture);
-                processTable.AddRow(processInfo.Pid.ToString(CultureInfo.InvariantCulture), processInfo.Name, memoryInMegabytes);
-            }
-
-            AnsiConsole.Write(processTable);
+            OutputTable(processList);
         }
 
         return ExitCodes.Success;
+    }
+
+    private static void OutputJson(IReadOnlyList<ProcessInfo> processList)
+    {
+        string json = JsonSerializer.Serialize(processList, _jsonOptions);
+        AnsiConsole.WriteLine(json);
+    }
+
+    private static void OutputTable(IReadOnlyList<ProcessInfo> processList)
+    {
+        Table processTable = new Table()
+            .AddColumn("PID")
+            .AddColumn("Name")
+            .AddColumn("Memory (MB)");
+
+        foreach (ProcessInfo processInfo in processList)
+        {
+            string memoryInMegabytes = (processInfo.WorkingSetBytes / BytesToMegabytes)
+                .ToString("F1", CultureInfo.InvariantCulture);
+            
+            processTable.AddRow(
+                processInfo.Pid.ToString(CultureInfo.InvariantCulture),
+                processInfo.Name,
+                memoryInMegabytes);
+        }
+
+        AnsiConsole.Write(processTable);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using DkToolbox.Core;
 using DkToolbox.Core.Abstractions;
 using DkToolbox.Core.Models;
 
@@ -9,16 +10,9 @@ public sealed class WindowsProcessService : IProcessService
     /// <inheritdoc />
     public IReadOnlyList<ProcessInfo> List(ProcessQuery query)
     {
-        var processes = Process.GetProcesses();
-        IEnumerable<Process> filtered = processes;
+        Process[] processes = Process.GetProcesses();
         
-        if (!string.IsNullOrWhiteSpace(query.NameContains))
-        {
-            filtered = filtered.Where(process =>
-                process.ProcessName.Contains(query.NameContains, StringComparison.OrdinalIgnoreCase));
-        }
-            
-        var items = filtered.Select(process =>
+        IEnumerable<ProcessInfo> processInfos = processes.Select(process =>
         {
             long workingSet = 0;
             try
@@ -33,18 +27,7 @@ public sealed class WindowsProcessService : IProcessService
             return new ProcessInfo(process.Id, process.ProcessName, workingSet);
         });
 
-        items = query.Sort switch
-        {
-            ProcessSort.Memory => items.OrderByDescending(item => item.WorkingSetBytes),
-            _ => items.OrderBy(item => item.Name),
-        };
-        
-        if (query.Top is > 0)
-        {
-            items = items.Take(query.Top.Value);
-        }
-        
-        return items.ToList();
+        return ProcessListHelper.ApplyQuery(processInfos, query);
     }
     
     /// <inheritdoc />
