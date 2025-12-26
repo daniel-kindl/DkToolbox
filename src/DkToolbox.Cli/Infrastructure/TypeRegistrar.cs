@@ -3,26 +3,33 @@ using Spectre.Console.Cli;
 
 namespace DkToolbox.Cli.Infrastructure;
 
-internal sealed class TypeRegistrar(IServiceProvider services) : ITypeRegistrar
+internal sealed class TypeRegistrar : ITypeRegistrar
 {
+    private readonly IServiceCollection _services;
+
+    public TypeRegistrar(IServiceCollection services)
+    {
+        _services = services;
+    }
+
     public ITypeResolver Build()
     {
-        return new TypeResolver(services);
+        return new TypeResolver(_services.BuildServiceProvider());
     }
 
     public void Register(Type service, Type implementation)
     {
-        // Not used when using existing IServiceProvider
+        _services.AddSingleton(service, implementation);
     }
 
     public void RegisterInstance(Type service, object implementation)
     {
-        // Not used when using existing IServiceProvider
+        _services.AddSingleton(service, implementation);
     }
 
     public void RegisterLazy(Type service, Func<object> factory)
     {
-        // Not used when using existing IServiceProvider
+        _services.AddSingleton(service, _ => factory());
     }
 }
 
