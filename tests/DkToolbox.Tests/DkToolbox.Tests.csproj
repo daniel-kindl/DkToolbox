@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\DkToolbox.Core\DkToolbox.Core.csproj" />
+    <ProjectReference Include="..\..\src\DkToolbox.Platform.Windows\DkToolbox.Platform.Windows.csproj" />
   </ItemGroup>
 
 </Project>
