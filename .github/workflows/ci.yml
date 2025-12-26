@@ -5,7 +5,6 @@ on:
     branches: [ master, main, develop ]
   pull_request:
     branches: [ master, main, develop ]
-  workflow_dispatch:  # Allow manual trigger
 
 jobs:
   build-and-test:
@@ -15,8 +14,6 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0  # Full history for better error context
       
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
@@ -30,20 +27,4 @@ jobs:
       run: dotnet build --no-restore --configuration Release
       
     - name: Run tests
-      run: dotnet test --no-build --configuration Release --verbosity normal --logger "trx" --results-directory TestResults
-      
-    - name: Publish test results
-      uses: EnricoMi/publish-unit-test-result-action/windows@v2
-      if: always()
-      with:
-        files: TestResults/**/*.trx
-        
-    - name: Upload build artifacts
-      if: success()
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-artifacts
-        path: |
-          src/DkToolbox.Cli/bin/Release/
-          !**/*.pdb
-        retention-days: 7
+      run: dotnet test --no-build --configuration Release --verbosity normal
