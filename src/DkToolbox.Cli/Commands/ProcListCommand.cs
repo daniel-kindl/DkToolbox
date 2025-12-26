@@ -75,9 +75,11 @@ public sealed class ProcListCommand(IProcessService processes) : Command<ProcLis
     private static void OutputTable(IReadOnlyList<ProcessInfo> processList)
     {
         Table processTable = new Table()
-            .AddColumn("PID")
+            .Border(TableBorder.Rounded)
+            .Expand()
+            .AddColumn(new TableColumn("PID").RightAligned())
             .AddColumn("Name")
-            .AddColumn("Memory (MB)");
+            .AddColumn(new TableColumn("Memory (MB)").RightAligned());
 
         foreach (ProcessInfo processInfo in processList)
         {
