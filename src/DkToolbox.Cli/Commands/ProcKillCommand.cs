@@ -69,7 +69,7 @@ public sealed class ProcKillCommand(IProcessService processes) : Command<ProcKil
         string errorMessage = failure.Kind switch
         {
             KillFailureKind.NotFound => $"Process {failure.Pid} not found or already exited.",
-            KillFailureKind.AccessDenied => $"Access denied killing process {failure.Pid}. Try running as administrator.",
+            KillFailureKind.AccessDenied => $"Access denied killing process {failure.Pid}. Try elevated shell.",
             _ => $"Unexpected error killing process {failure.Pid}: {failure.Error}"
         };
 
