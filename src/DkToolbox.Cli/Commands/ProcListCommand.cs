@@ -69,7 +69,7 @@ public sealed class ProcListCommand(IProcessService processes) : Command<ProcLis
     private static void OutputJson(IReadOnlyList<ProcessInfo> processList)
     {
         string json = JsonSerializer.Serialize(processList, _jsonOptions);
-        AnsiConsole.WriteLine(json);
+        Console.Out.WriteLine(json);
     }
 
     private static void OutputTable(IReadOnlyList<ProcessInfo> processList)
