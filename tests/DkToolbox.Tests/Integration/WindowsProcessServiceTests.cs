@@ -97,9 +97,9 @@ public class WindowsProcessServiceTests
         KillResult result = _processService.Kill(nonExistentPid, options);
 
         // Assert
-        Assert.False(result.Success);
-        Assert.Equal(KillFailureKind.NotFound, result.FailureKind);
-        Assert.NotNull(result.Error);
+        KillFailure failure = Assert.IsType<KillFailure>(result);
+        Assert.Equal(KillFailureKind.NotFound, failure.Kind);
+        Assert.NotNull(failure.Error);
         Assert.Equal(nonExistentPid, result.Pid);
     }
 }

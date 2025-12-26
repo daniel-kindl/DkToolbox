@@ -15,9 +15,7 @@ public class KillResultTests
 
         // Assert
         Assert.Equal(pid, result.Pid);
-        Assert.True(result.Success);
-        Assert.Null(result.FailureKind);
-        Assert.Null(result.Error);
+        Assert.IsType<KillSuccess>(result);
     }
 
     [Fact]
@@ -32,9 +30,9 @@ public class KillResultTests
 
         // Assert
         Assert.Equal(pid, result.Pid);
-        Assert.False(result.Success);
-        Assert.Equal(KillFailureKind.NotFound, result.FailureKind);
-        Assert.Equal(errorMessage, result.Error);
+        KillFailure failure = Assert.IsType<KillFailure>(result);
+        Assert.Equal(KillFailureKind.NotFound, failure.Kind);
+        Assert.Equal(errorMessage, failure.Error);
     }
 
     [Fact]
@@ -49,9 +47,9 @@ public class KillResultTests
 
         // Assert
         Assert.Equal(pid, result.Pid);
-        Assert.False(result.Success);
-        Assert.Equal(KillFailureKind.AccessDenied, result.FailureKind);
-        Assert.Equal(errorMessage, result.Error);
+        KillFailure failure = Assert.IsType<KillFailure>(result);
+        Assert.Equal(KillFailureKind.AccessDenied, failure.Kind);
+        Assert.Equal(errorMessage, failure.Error);
     }
 
     [Fact]
@@ -66,9 +64,9 @@ public class KillResultTests
 
         // Assert
         Assert.Equal(pid, result.Pid);
-        Assert.False(result.Success);
-        Assert.Equal(KillFailureKind.Unexpected, result.FailureKind);
-        Assert.Equal(errorMessage, result.Error);
+        KillFailure failure = Assert.IsType<KillFailure>(result);
+        Assert.Equal(KillFailureKind.Unexpected, failure.Kind);
+        Assert.Equal(errorMessage, failure.Error);
     }
 
     [Fact]
