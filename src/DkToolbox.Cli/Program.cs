@@ -33,6 +33,8 @@ app.Configure(config =>
         proc.SetDescription("Process utilities");
         proc.AddCommand<ProcListCommand>("list")
             .WithDescription("List running processes");
+        proc.AddCommand<ProcKillCommand>("kill")
+            .WithDescription("Kill a process by PID");
     });
 });
 
