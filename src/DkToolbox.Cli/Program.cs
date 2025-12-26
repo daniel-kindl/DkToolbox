@@ -36,6 +36,13 @@ app.Configure(config =>
         proc.AddCommand<ProcKillCommand>("kill")
             .WithDescription("Kill a process by PID");
     });
+
+    config.AddBranch("port", port =>
+    {
+        port.SetDescription("Port utilities");
+        port.AddCommand<PortWhoCommand>("who")
+            .WithDescription("Show which process owns a port");
+    });
 });
 
 return app.Run(args);
