@@ -37,7 +37,7 @@ public sealed class WindowsProcessService : IProcessService
         try
         {
             Process process = Process.GetProcessById(pid);
-            process.Kill(entireProcessTree: options.Tree || options.Force);
+            process.Kill(entireProcessTree: options.Tree);
             return KillResult.Successful(pid);
         }
         catch (ArgumentException exception)
