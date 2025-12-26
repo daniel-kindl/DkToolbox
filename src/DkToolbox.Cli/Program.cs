@@ -1,5 +1,5 @@
-using DkToolbox.Cli.Infrastructure;
 using DkToolbox.Cli.Commands;
+using DkToolbox.Cli.Infrastructure;
 using DkToolbox.Core.Abstractions;
 using DkToolbox.Platform.Windows;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,8 +17,12 @@ app.Configure(config =>
     config.SetApplicationName("dktoolbox");
     config.SetApplicationVersion("1.0.0");
 
-    config.AddCommand<ProcListCommand>("proc:list")
-        .WithDescription("List running processes");
+    config.AddBranch("proc", proc =>
+    {
+        proc.SetDescription("Process utilities");
+        proc.AddCommand<ProcListCommand>("list")
+            .WithDescription("List running processes");
+    });
 });
 
 return app.Run(args);
