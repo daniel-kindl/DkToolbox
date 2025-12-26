@@ -1,10 +1,20 @@
+using DkToolbox.Cli;
 using DkToolbox.Cli.Commands;
 using DkToolbox.Cli.Infrastructure;
 using DkToolbox.Core.Abstractions;
 using DkToolbox.Platform.Windows;
 using Microsoft.Extensions.DependencyInjection;
+using Spectre.Console;
 using Spectre.Console.Cli;
 using System.Reflection;
+using System.Runtime.InteropServices;
+
+if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+{
+    AnsiConsole.MarkupLine("[red]Error:[/] This application currently only supports Windows.");
+    AnsiConsole.MarkupLine("[yellow]Supported platforms will be added in future releases.[/]");
+    return ExitCodes.UnexpectedError;
+}
 
 IServiceCollection services = new ServiceCollection();
 services.AddSingleton<IProcessService, WindowsProcessService>();
