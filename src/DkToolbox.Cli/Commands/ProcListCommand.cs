@@ -9,7 +9,6 @@ namespace DkToolbox.Cli.Commands;
 public sealed class ProcListCommand(IProcessService processes) : Command<ProcListCommand.Settings>
 {
     private const double BytesToMegabytes = 1024.0 * 1024.0;
-    private const int SuccessExitCode = 0;
 
     public sealed class Settings : CommandSettings
     {
@@ -40,6 +39,6 @@ public sealed class ProcListCommand(IProcessService processes) : Command<ProcLis
         }
 
         AnsiConsole.Write(processTable);
-        return SuccessExitCode;
+        return ExitCodes.Success;
     }
 }
