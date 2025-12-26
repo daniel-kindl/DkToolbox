@@ -45,6 +45,11 @@ public sealed class WindowsProcessService : IProcessService
             // Process not found (invalid PID or already exited)
             return KillResult.Failed(pid, KillFailureKind.NotFound, exception.Message);
         }
+        catch (InvalidOperationException exception)
+        {
+            // Process exited between GetProcessById and Kill
+            return KillResult.Failed(pid, KillFailureKind.NotFound, exception.Message);
+        }
         catch (System.ComponentModel.Win32Exception exception)
         {
             // Error code 5 = Access Denied
