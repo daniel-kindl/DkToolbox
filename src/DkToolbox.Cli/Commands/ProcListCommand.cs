@@ -29,13 +29,28 @@ public sealed class ProcListCommand(IProcessService processes) : Command<ProcLis
 
         [CommandOption("--json")]
         public bool Json { get; init; }
+
+        public override ValidationResult Validate()
+        {
+            if (Top is < 1)
+            {
+                return ValidationResult.Error("--top must be a positive number (>= 1)");
+            }
+
+            string sortLower = Sort.ToLowerInvariant();
+            if (sortLower != "name" && sortLower != "mem" && sortLower != "memory")
+            {
+                return ValidationResult.Error("--sort must be 'name', 'mem', or 'memory'");
+            }
+
+            return ValidationResult.Success();
+        }
     }
 
     public override int Execute(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        ProcessSort sortOrder = settings.Sort.Equals("mem", StringComparison.OrdinalIgnoreCase)
-            ? ProcessSort.Memory
-            : ProcessSort.Name;
+        string sortLower = settings.Sort.ToLowerInvariant();
+        ProcessSort sortOrder = sortLower is "mem" or "memory" ? ProcessSort.Memory : ProcessSort.Name;
 
         IReadOnlyList<ProcessInfo> processList = processes.List(new ProcessQuery(settings.Name, settings.Top, sortOrder));
 
@@ -68,7 +83,7 @@ public sealed class ProcListCommand(IProcessService processes) : Command<ProcLis
         {
             string memoryInMegabytes = (processInfo.WorkingSetBytes / BytesToMegabytes)
                 .ToString("F1", CultureInfo.InvariantCulture);
-            
+
             processTable.AddRow(
                 processInfo.Pid.ToString(CultureInfo.InvariantCulture),
                 processInfo.Name,
