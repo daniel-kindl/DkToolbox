@@ -36,13 +36,24 @@ public sealed class WindowsProcessService : IProcessService
     {
         try
         {
-            var process = Process.GetProcessById(pid);
+            Process process = Process.GetProcessById(pid);
             process.Kill(entireProcessTree: options.Tree || options.Force);
-            return new KillResult(pid, true, null);
+            return KillResult.Successful(pid);
+        }
+        catch (ArgumentException exception)
+        {
+            // Process not found (invalid PID or already exited)
+            return KillResult.Failed(pid, KillFailureKind.NotFound, exception.Message);
+        }
+        catch (System.ComponentModel.Win32Exception exception)
+        {
+            // Access denied or insufficient privileges
+            return KillResult.Failed(pid, KillFailureKind.AccessDenied, exception.Message);
         }
         catch (Exception exception)
         {
-            return new KillResult(pid, false, exception.Message);
+            // Unexpected error
+            return KillResult.Failed(pid, KillFailureKind.Unexpected, exception.Message);
         }
     }
 }

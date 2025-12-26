@@ -1,4 +1,3 @@
-using DkToolbox.Core.Abstractions;
 using DkToolbox.Core.Models;
 using DkToolbox.Platform.Windows;
 
@@ -6,12 +5,7 @@ namespace DkToolbox.Tests.Integration;
 
 public class WindowsProcessServiceTests
 {
-    private readonly WindowsProcessService _processService;
-
-    public WindowsProcessServiceTests()
-    {
-        _processService = new WindowsProcessService();
-    }
+    private readonly WindowsProcessService _processService = new();
 
     [Fact]
     public void ListShouldReturnProcessesWhenCalledWithoutFilters()
@@ -24,11 +18,11 @@ public class WindowsProcessServiceTests
 
         // Assert
         Assert.NotEmpty(processes);
-        Assert.All(processes, p =>
+        Assert.All(processes, process =>
         {
-            Assert.True(p.Pid >= 0);
-            Assert.NotNull(p.Name);
-            Assert.True(p.WorkingSetBytes >= 0);
+            Assert.True(process.Pid >= 0);
+            Assert.NotNull(process.Name);
+            Assert.True(process.WorkingSetBytes >= 0);
         });
     }
 
@@ -50,7 +44,7 @@ public class WindowsProcessServiceTests
     public void ListShouldLimitResultsWhenTopProvided()
     {
         // Arrange
-        int topCount = 5;
+        const int topCount = 5;
         ProcessQuery query = new ProcessQuery(null, topCount, ProcessSort.Memory);
 
         // Act
@@ -96,7 +90,7 @@ public class WindowsProcessServiceTests
     public void KillShouldReturnFailureWhenProcessDoesNotExist()
     {
         // Arrange
-        int nonExistentPid = 999999;
+        const int nonExistentPid = 999999;
         KillOptions options = new KillOptions(Force: false, Tree: false);
 
         // Act
@@ -104,6 +98,7 @@ public class WindowsProcessServiceTests
 
         // Assert
         Assert.False(result.Success);
+        Assert.Equal(KillFailureKind.NotFound, result.FailureKind);
         Assert.NotNull(result.Error);
         Assert.Equal(nonExistentPid, result.Pid);
     }
