@@ -5,33 +5,69 @@ namespace DkToolbox.Tests.Models;
 public class KillResultTests
 {
     [Fact]
-    public void KillResultShouldCreateInstanceWithSuccessResult()
+    public void KillResultShouldCreateSuccessfulResult()
     {
         // Arrange
-        int pid = 1234;
+        const int pid = 1234;
 
         // Act
-        KillResult result = new KillResult(pid, Success: true, Error: null);
+        KillResult result = KillResult.Successful(pid);
 
         // Assert
         Assert.Equal(pid, result.Pid);
         Assert.True(result.Success);
+        Assert.Null(result.FailureKind);
         Assert.Null(result.Error);
     }
 
     [Fact]
-    public void KillResultShouldCreateInstanceWithFailureResult()
+    public void KillResultShouldCreateFailedResultWithNotFound()
     {
         // Arrange
-        int pid = 5678;
-        string errorMessage = "Access denied";
+        const int pid = 5678;
+        const string errorMessage = "Process not found";
 
         // Act
-        KillResult result = new KillResult(pid, Success: false, Error: errorMessage);
+        KillResult result = KillResult.Failed(pid, KillFailureKind.NotFound, errorMessage);
 
         // Assert
         Assert.Equal(pid, result.Pid);
         Assert.False(result.Success);
+        Assert.Equal(KillFailureKind.NotFound, result.FailureKind);
+        Assert.Equal(errorMessage, result.Error);
+    }
+
+    [Fact]
+    public void KillResultShouldCreateFailedResultWithAccessDenied()
+    {
+        // Arrange
+        const int pid = 9012;
+        const string errorMessage = "Access denied";
+
+        // Act
+        KillResult result = KillResult.Failed(pid, KillFailureKind.AccessDenied, errorMessage);
+
+        // Assert
+        Assert.Equal(pid, result.Pid);
+        Assert.False(result.Success);
+        Assert.Equal(KillFailureKind.AccessDenied, result.FailureKind);
+        Assert.Equal(errorMessage, result.Error);
+    }
+
+    [Fact]
+    public void KillResultShouldCreateFailedResultWithUnexpected()
+    {
+        // Arrange
+        const int pid = 3456;
+        const string errorMessage = "Unexpected error occurred";
+
+        // Act
+        KillResult result = KillResult.Failed(pid, KillFailureKind.Unexpected, errorMessage);
+
+        // Assert
+        Assert.Equal(pid, result.Pid);
+        Assert.False(result.Success);
+        Assert.Equal(KillFailureKind.Unexpected, result.FailureKind);
         Assert.Equal(errorMessage, result.Error);
     }
 
@@ -39,8 +75,8 @@ public class KillResultTests
     public void KillResultShouldBeEqualWhenPropertiesMatch()
     {
         // Arrange
-        KillResult result1 = new KillResult(1234, Success: true, Error: null);
-        KillResult result2 = new KillResult(1234, Success: true, Error: null);
+        KillResult result1 = KillResult.Successful(1234);
+        KillResult result2 = KillResult.Successful(1234);
 
         // Act & Assert
         Assert.Equal(result1, result2);
@@ -50,8 +86,8 @@ public class KillResultTests
     public void KillResultShouldNotBeEqualWhenPropertiesDiffer()
     {
         // Arrange
-        KillResult result1 = new KillResult(1234, Success: true, Error: null);
-        KillResult result2 = new KillResult(1234, Success: false, Error: "Failed");
+        KillResult result1 = KillResult.Successful(1234);
+        KillResult result2 = KillResult.Failed(1234, KillFailureKind.NotFound, "Failed");
 
         // Act & Assert
         Assert.NotEqual(result1, result2);
